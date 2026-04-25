@@ -1,0 +1,1719 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>AlgoReadthm — Library Management</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,300&display=swap" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+
+    :root {
+      --ink:        #0B1829;
+      --parch:      #F5F0E8;
+      --gold:       #C9A84C;
+      --champagne:  #F0D98B;
+      --navy-mid:   #112240;
+      --navy-light: #1B3A5C;
+      --muted:      #4a6080;
+      --line:       #d8d2c4;
+      --shadow:     rgba(11,24,41,.15);
+      --forest:     #0B1829;
+      --rust:       #112240;
+      --dark:       #0B1829;
+      --border:     #d8d2c4;
+    }
+
+    body {
+      background: #fff;
+      color: var(--ink);
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-size: 17px;
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    .site-header {
+      background: var(--forest);
+      border-bottom: 4px solid var(--gold);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 4px 24px var(--shadow);
+    }
+    .logo-title {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 1.9rem;
+      font-weight: 700;
+      letter-spacing: .04em;
+      color: var(--gold);
+      line-height: 1;
+    }
+    .logo-sub {
+      font-size: .8rem;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      color: #8ea8c8;
+      margin-top: .2rem;
+    }
+    .site-nav .btn-nav {
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-family: 'Crimson Pro', serif;
+      font-size: .85rem;
+      font-weight: 600;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: #8ea8c8;
+      padding: .55rem 1.1rem;
+      border-radius: 3px;
+      transition: background .2s, color .2s;
+    }
+    .site-nav .btn-nav:hover,
+    .site-nav .btn-nav.active {
+      background: rgba(201,168,76,.18);
+      color: var(--champagne);
+    }
+    .btn-logout {
+      background: #c0392b !important;
+      color: #fff !important;
+      margin-left: 1rem;
+    }
+
+    .section { 
+      display: none;
+    }
+    .section.active { 
+      display: block;
+    }
+    .section-header {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      margin-bottom: 1.6rem;
+      border-bottom: 2px solid var(--line);
+      padding-bottom: .8rem;
+    }
+    .section-header h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--ink);
+    }
+
+    .search-box { 
+      position: relative; 
+    }
+    .search-box input {
+      width: 100%;
+      padding: .65rem .9rem .65rem 2.4rem;
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      background: var(--parch);
+      font-family: 'Crimson Pro', serif;
+      font-size: 1rem;
+      color: var(--ink);
+      outline: none;
+      transition: border-color .2s, box-shadow .2s;
+    }
+    .search-box input:focus {
+      border-color: var(--gold);
+      box-shadow: 0 0 0 3px rgba(201,168,76,.12);
+    }
+    .search-box .search-icon {
+      position: absolute;
+      left: .75rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--muted);
+      pointer-events: none;
+    }
+    .result-count {
+      font-size: .85rem;
+      color: var(--muted);
+      font-style: italic;
+      margin-top: .5rem;
+    }
+    .filter-select {
+      padding: .65rem .9rem;
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      background: #fff;
+      font-family: 'Crimson Pro', serif;
+      font-size: 1rem;
+      color: var(--ink);
+      cursor: pointer;
+      outline: none;
+      transition: border-color .2s;
+      min-width: 140px;
+    }
+    .filter-select:focus { border-color: var(--gold); }
+
+    .book-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px,1fr));
+      gap: 1.4rem;
+    }
+    .book-card {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px var(--shadow);
+      display: flex;
+      flex-direction: column;
+      transition: box-shadow .2s;
+    }
+    .book-card:hover { box-shadow: 0 8px 28px var(--shadow); }
+    .book-body {
+      padding: 1rem;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+    .book-cover {
+      width: 100%;
+      aspect-ratio: 2/3;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Playfair Display', serif;
+      font-size: .85rem;
+      font-style: italic;
+      text-align: center;
+      padding: .5rem;
+      color: #fff;
+      margin-bottom: .8rem;
+      flex-shrink: 0;
+    }
+    .book-title {
+      font-family: 'Playfair Display', serif;
+      font-size: .95rem;
+      font-weight: 700;
+      line-height: 1.3;
+      margin-bottom: .2rem;
+    }
+    .book-author {
+      font-size: .82rem;
+      color: var(--muted);
+      font-style: italic;
+      margin-bottom: .5rem;
+    }
+    .book-genre {
+      display: inline-block;
+      font-size: .7rem;
+      font-weight: 600;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      padding: .18rem .55rem;
+      border-radius: 3px;
+      margin-bottom: .6rem;
+    }
+    .book-actions { display: flex; gap: .5rem; margin-top: auto; }
+    .available-badge,
+    .borrowed-badge {
+      font-size: .7rem;
+      font-weight: 600;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      padding: .15rem .5rem;
+      border-radius: 20px;
+      display: inline-block;
+    }
+    .available-badge { 
+      background: #d4edda; 
+      color: #2c6e49; 
+    }
+    .borrowed-badge  { 
+      background: #fde8d8; color: 
+      var(--rust); 
+    }
+    .empty-state { 
+      text-align: center; 
+      padding: 4rem 2rem; color: 
+      var(--muted); 
+    }
+    .empty-state p { 
+      font-style: italic;
+      font-size: 1.1rem; 
+    }
+
+    .btn {
+      font-family: 'Crimson Pro', serif;
+      font-size: .82rem;
+      font-weight: 600;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+    }
+    .btn-action {
+      padding: .32rem .75rem;
+      border: none;
+      border-radius: 4px;
+      font-family: 'Crimson Pro', serif;
+      font-size: .8rem;
+      font-weight: 600;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: background .18s;
+      white-space: nowrap;
+    }
+    .btn-submit {
+      padding: .8rem 2rem;
+      background: var(--navy-mid);
+      color: var(--champagne);
+      border: none;
+      border-radius: 5px;
+      font-family: 'Playfair Display', serif;
+      font-size: 1rem;
+      font-style: italic;
+      cursor: pointer;
+      transition: background .2s;
+      letter-spacing: .04em;
+    }
+    
+    .btn-cancel {
+      padding: .55rem 1.2rem;
+      background: var(--line);
+      color: var(--ink);
+      border: none;
+      border-radius: 4px;
+      font-family: 'Crimson Pro', serif;
+      font-size: .95rem;
+      cursor: pointer;
+      transition: background .15s;
+    }
+    .btn-cancel:hover { 
+      background: #c4bfb4; 
+    }
+    .btn-confirm {
+      padding: .55rem 1.2rem;
+      background: var(--navy-mid);
+      color: var(--champagne);
+      border: none;
+      border-radius: 4px;
+      font-family: 'Crimson Pro', serif;
+      font-size: .95rem;
+      cursor: pointer;
+      transition: background .15s;
+    }
+    .btn-confirm:hover { background: var(--navy-light); }
+
+    .form-card {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 2rem 2.5rem;
+      max-width: 640px;
+      box-shadow: 0 4px 20px var(--shadow);
+      margin: 0 auto;
+    }
+    .form-group label,
+    .form-label-upper {
+      font-size: .8rem;
+      font-weight: 600;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    .form-control,
+    .form-select {
+      padding: .7rem 1rem;
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      background: var(--parch);
+      font-family: 'Crimson Pro', serif;
+      font-size: 1rem;
+      color: var(--ink);
+      outline: none;
+      transition: border-color .2s, box-shadow .2s;
+    }
+    .form-control:focus,
+    .form-select:focus {
+      border-color: var(--gold);
+      box-shadow: 0 0 0 3px rgba(201,168,76,.1);
+    }
+
+    .table { font-size: .97rem; }
+    .table thead th {
+      background: var(--navy-mid) !important;
+      color: var(--champagne) !important;
+      font-family: 'Playfair Display', serif;
+      font-weight: 700;
+      font-style: italic;
+      padding: .9rem 1.2rem;
+      letter-spacing: .03em;
+      white-space: nowrap;
+      border: none;
+    }
+    .table tbody tr { 
+      border-bottom: 1px solid var(--line); 
+      transition: background .15s; 
+    }
+    .table tbody tr:hover { 
+      background: rgba(201,168,76,.06);
+    }
+    .table tbody td {
+      padding: .75rem 1.2rem; 
+      vertical-align: middle; 
+    }
+
+    .status-badge {
+      display: inline-block;
+      font-size: .7rem;
+      font-weight: 600;
+      letter-spacing: .09em;
+      text-transform: uppercase;
+      padding: .18rem .6rem;
+      border-radius: 20px;
+      white-space: nowrap;
+    }
+    .status-borrowed { 
+      background: #fde8d8; 
+      color: #8b3a1c; 
+    }
+    .status-returned { 
+      background: #d4edda; color: #2c6e49; 
+    }
+    .status-overdue  { background: #f8d7da; 
+      color: #c0392b; 
+    }
+    .status-unpaid   { 
+      background: #fde8d8;
+      color: #8b3a1c; 
+    }
+    .status-paid     { 
+      background: #d4edda; 
+      color: #2c6e49; }
+    .status-waived   { 
+      background: #e2e3e5; 
+      color: #383d41; 
+    }
+    .status {
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: .75rem;
+      font-weight: bold;
+    }
+    .status.active     { 
+      background: #d4edda; 
+      color: #155724; 
+    }
+    .status.restricted { 
+      background: #f8d7da; 
+      color: #721c24; 
+    }
+    .status.inactive  { 
+      background: #e2e3e5;
+      color: #383d41; 
+    }
+    .id-chip {
+      font-size: .75rem;
+      font-weight: 600;
+      letter-spacing: .06em;
+      font-family: 'Crimson Pro', Georgia, serif;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+    .fine-amount { 
+      font-family: 'Playfair Display', serif; 
+      font-weight: 700; 
+      color: #c0392b; }
+
+    .overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 5000;
+      background: rgba(26,18,9,.55);
+      backdrop-filter: blur(3px);
+      align-items: center;
+      justify-content: center;
+    }
+    .overlay.open { display: flex; }
+    .modal-box {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 2rem 2.4rem;
+      max-width: 460px;
+      width: 90%;
+      box-shadow: 0 12px 40px rgba(0,0,0,.3);
+    }
+    .modal-box h3 { 
+      font-family: 'Playfair Display', serif; 
+      font-size: 1.4rem; 
+      margin-bottom: 1rem; 
+    }
+    .modal-actions { 
+      display: flex; 
+      gap: .8rem; 
+      margin-top: 1.4rem; 
+      justify-content: flex-end; 
+    }
+
+    .borrow-rules {
+      background: #f5f0e8;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: .75rem 1rem;
+      font-size: .83rem;
+      color: var(--muted);
+      margin-bottom: 1rem;
+    }
+    .borrow-rules strong { 
+      color: var(--ink); 
+    }
+    .info-banner {
+      background: #fff8e8;
+      border: 1px solid var(--gold);
+      border-radius: 6px;
+      padding: .75rem 1rem;
+      font-size: .88rem;
+      color: var(--muted);
+      margin-bottom: 1.2rem;
+    }
+    .info-banner strong { 
+      color: var(--ink);
+    }
+
+    @media (max-width: 768px) {
+      .site-header .px-4 { padding-left: 1.2rem !important; padding-right: 1.2rem !important; }
+      main { padding: 1.5rem 1.2rem !important; }
+      .btn-nav { padding: .55rem .7rem !important; font-size: .75rem !important; }
+    }
+  </style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="d-flex align-items-center justify-content-between px-4 py-0" style="min-height:68px;">
+    <div class="d-flex flex-column py-3">
+      <span class="logo-title">AlgoReadthm</span>
+      <span class="logo-sub">Library Management System</span>
+    </div>
+    <nav class="site-nav d-flex gap-1 flex-wrap">
+      <button class="btn-nav active" onclick="showSection('catalog',this)">Catalog</button>
+      <button class="btn-nav" onclick="showSection('add',this)">Add Book</button>
+      <button class="btn-nav" onclick="showSection('members',this)">Members</button>
+      <button class="btn-nav" onclick="showSection('borrowed',this)">Borrowed</button>
+      <button class="btn-nav" onclick="showSection('history',this)">History</button>
+      <button class="btn-nav" onclick="showSection('fines',this)">Fines</button>
+      <button class="btn-nav btn-logout" onclick="logout()">Logout</button>
+    </nav>
+  </div>
+</header>
+
+<div class="d-flex" style="min-height:calc(100vh - 68px)">
+  <main class="flex-fill p-4" style="overflow:auto">
+    <div id="section-catalog" class="section active">
+      <div class="section-header"><h2>Book Catalog</h2></div>
+      <div class="mb-3">
+        <div class="d-flex gap-3 flex-wrap align-items-center">
+          <div class="search-box flex-fill" style="min-width:200px">
+            <svg class="search-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="text" id="searchInput" placeholder="Title, author, ISBN, genre…" oninput="debounceSearch('catalog')"/>
+          </div>
+          <select class="filter-select" id="availFilter" onchange="renderCatalog()">
+            <option value="">All</option>
+            <option value="available">Available</option>
+            <option value="borrowed">Borrowed</option>
+          </select>
+        </div>
+      </div>
+      <div class="book-grid" id="bookGrid"></div>
+    </div>
+
+    <div id="section-add" class="section">
+      <div class="section-header"><h2>Add New Book</h2></div>
+      <div class="form-card">
+        <div class="row g-3">
+          <div class="col-12">
+            <label class="form-label-upper d-block mb-1">Title *</label>
+            <input type="text" id="f-title" class="form-control" placeholder="The Great Gatsby"/>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label-upper d-block mb-1">Author *</label>
+            <input type="text" id="f-author" class="form-control" placeholder="F. Scott Fitzgerald"/>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label-upper d-block mb-1">ISBN</label>
+            <input type="text" id="f-isbn" class="form-control" placeholder="978-…"/>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label-upper d-block mb-1">Category</label>
+            <select id="f-genre" class="form-select">
+              <option>Fiction</option><option>Non-Fiction</option><option>Science</option>
+              <option>History</option><option>Philosophy</option><option>Fantasy</option><option>Mystery</option>
+            </select>
+          </div>
+          <div class="col-md-3">
+            <label class="form-label-upper d-block mb-1">Year</label>
+            <input type="number" id="f-year" class="form-control" placeholder="1925" min="1000" max="2099"/>
+          </div>
+          <div class="col-md-3">
+            <label class="form-label-upper d-block mb-1">Copies to add</label>
+            <input type="number" id="f-copies" class="form-control" value="1" min="1" max="20"/>
+          </div>
+        </div>
+        <button class="btn-submit mt-4" onclick="addBook()">Add to Catalog</button>
+      </div>
+    </div>
+
+    <div id="section-members" class="section">
+      <div class="section-header"><h2>Members</h2></div>
+      <div class="card border-0 shadow-sm mb-4 p-3" style="background:#fff;border-radius:8px;">
+        <div class="row g-3 align-items-end">
+          <div class="col-md-3">
+            <label class="form-label-upper d-block mb-1">Name *</label>
+            <input type="text" id="m-name" class="form-control" placeholder="Jane Doe"/>
+          </div>
+          <div class="col-md-3">
+            <label class="form-label-upper d-block mb-1">Email</label>
+            <input type="email" id="m-email" class="form-control" placeholder="jane@example.com" autocomplete="off"/>
+          </div>
+          <div class="col-md-3">
+            <label class="form-label-upper d-block mb-1">Contact Number</label>
+            <input type="tel" id="m-contact" class="form-control" placeholder="+63 912 345 6789"/>
+          </div>
+          <div class="col-md-3">
+            <button class="btn-submit w-100" style="margin-top:0" onclick="addMember()">+ Add Member</button>
+          </div>
+        </div>
+      </div>
+      <div class="mb-3">
+        <div class="d-flex gap-3 flex-wrap align-items-center">
+          <div class="search-box flex-fill" style="min-width:200px">
+            <svg class="search-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="text" id="memberSearch" placeholder="Search by name, email, or contact…" oninput="debounceSearch('members')" autocomplete="off"/>
+          </div>
+          <select class="filter-select" id="memberBooksFilter" onchange="renderMembers()">
+            <option value="">All Members</option>
+            <option value="active">Has Books Out</option>
+            <option value="clear">No Books Out</option>
+          </select>
+        </div>
+      </div>
+      <div class="table-responsive">
+        <table class="table table-hover align-middle">
+          <thead><tr>
+            <th>Member_ID</th><th>Member_Name</th><th>Email</th><th>Contact_Number</th>
+            <th>Date_Joined</th><th class="text-center">Books Out</th>
+            <th>Member_Status_Name</th><th>Actions</th>
+          </tr></thead>
+          <tbody id="memberTable"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ── BORROWED ── -->
+    <div id="section-borrowed" class="section">
+      <div class="section-header"><h2>Borrowed Books</h2></div>
+      <div class="mb-3">
+        <div class="d-flex gap-3 flex-wrap align-items-center">
+          <div class="search-box flex-fill" style="min-width:200px">
+            <svg class="search-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="text" id="borrowedSearch" placeholder="Search by title, author, or borrower…" oninput="renderBorrowed()"/>
+          </div>
+          <select class="filter-select" id="borrowedStatusFilter" onchange="renderBorrowed()">
+            <option value="">All</option>
+            <option value="overdue">Overdue</option>
+            <option value="current">Not Overdue</option>
+          </select>
+        </div>
+        <div class="result-count" id="borrowedResultCount"></div>
+      </div>
+      <div class="table-responsive">
+        <table class="table table-hover align-middle">
+          <thead><tr>
+            <th>Borrow_ID</th><th>BookCopy_ID</th><th>Book_Title</th><th>Author_Name</th>
+            <th>Member_ID</th><th>Member_Name</th><th>Borrow_Date</th><th>Due_Date</th><th>Actions</th>
+          </tr></thead>
+          <tbody id="borrowTable"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ── HISTORY ── -->
+    <div id="section-history" class="section">
+      <div class="section-header"><h2>Transaction History</h2></div>
+      <div class="mb-3">
+        <div class="d-flex gap-3 flex-wrap align-items-center">
+          <div class="search-box flex-fill" style="min-width:200px">
+            <svg class="search-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="text" id="historySearch" placeholder="Search by Txn ID, book, member, or date…" oninput="debounceSearch('history')"/>
+          </div>
+          <select class="filter-select" id="historyTypeFilter" onchange="renderHistory()">
+            <option value="">All Transactions</option>
+            <option value="borrowed">Borrowed</option>
+            <option value="returned">Returned</option>
+          </select>
+        </div>
+        <div class="result-count" id="historyResultCount"></div>
+      </div>
+      <div class="table-responsive">
+        <table class="table table-hover align-middle">
+          <thead><tr>
+            <th>BorrowDetails_ID</th><th>Borrow_ID</th><th>BookCopy_ID</th><th>Book_Title</th>
+            <th>Member_ID</th><th>Member_Name</th><th>Borrow_Date</th>
+            <th>Return_Date</th><th>Borrow_Status_Name</th><th>Actions</th>
+          </tr></thead>
+          <tbody id="historyTable"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ── FINES ── -->
+    <div id="section-fines" class="section">
+      <div class="section-header"><h2>Fines</h2></div>
+      <div class="info-banner">
+        <strong>How fines work:</strong> A fine of <strong>₱5.00 per day</strong> is automatically created when a book is returned after its due date.
+        You can mark a fine as <em>Paid</em> (money collected) or <em>Waived</em> (forgiven).
+      </div>
+      <div class="mb-3">
+        <div class="d-flex gap-3 flex-wrap align-items-center">
+          <div class="search-box flex-fill" style="min-width:200px">
+            <svg class="search-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="text" id="finesSearch" placeholder="Search by member name or book title…" oninput="renderFines()"/>
+          </div>
+          <select class="filter-select" id="finesStatusFilter" onchange="renderFines()">
+            <option value="">All Fines</option>
+            <option value="Unpaid">Unpaid</option>
+            <option value="Paid">Paid</option>
+            <option value="Waived">Waived</option>
+          </select>
+        </div>
+        <div class="result-count" id="finesResultCount"></div>
+      </div>
+      <div class="table-responsive">
+        <table class="table table-hover align-middle">
+          <thead><tr>
+            <th>Fines_ID</th><th>BorrowDetails_ID</th><th>Member_Name</th><th>Book_Title</th>
+            <th>Fine_Amount</th><th>Issued_Date</th><th>Paid_Date</th><th>Fine_Status_Name</th><th>Actions</th>
+          </tr></thead>
+          <tbody id="finesTable"></tbody>
+        </table>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+
+<!-- ════════════════════ MODALS ════════════════════ -->
+
+<!-- Borrow -->
+<div class="overlay" id="borrowModal">
+  <div class="modal-box">
+    <h3>Borrow Book</h3>
+    <p class="text-muted fst-italic mb-3" id="borrowModalTitle"></p>
+    <div class="borrow-rules">
+      <strong>Borrowing Rules:</strong><br>
+      • Max <strong>3 books</strong> per member at a time<br>
+      • Only <strong>1 copy</strong> of the same title per member<br>
+      • Loan duration: <strong>1–30 days</strong><br>
+      • Member must have <strong>Active</strong> status
+    </div>
+    <div class="mb-3">
+      <label class="form-label-upper d-block mb-1">Select Member</label>
+      <select id="borrowMemberSelect" class="form-select"></select>
+    </div>
+    <div class="mb-2">
+      <label class="form-label-upper d-block mb-1">Loan Duration</label>
+      <select id="borrowDuration" class="form-select">
+        <option value="1">1 Day</option><option value="3">3 Days</option>
+        <option value="7">7 Days</option><option value="14" selected>14 Days</option>
+        <option value="21">21 Days</option><option value="30">30 Days</option>
+      </select>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeBorrowModal()">Cancel</button>
+      <button class="btn-confirm" style="background:var(--forest)" onclick="confirmBorrow()">Confirm Borrow</button>
+    </div>
+  </div>
+</div>
+
+<!-- Notification -->
+<div class="overlay" id="notifModal">
+  <div class="modal-box">
+    <h3 id="notifTitle" style="color:#8b3a1c">⚠️ Warning</h3>
+    <p id="notifMessage" class="text-muted mt-2"></p>
+    <div class="modal-actions">
+      <button class="btn-confirm" id="notifBtn" onclick="closeNotifModal()">OK, Got it!</button>
+    </div>
+  </div>
+</div>
+
+<!-- Delete Book -->
+<div class="overlay" id="deleteModal">
+  <div class="modal-box">
+    <h3>Remove Volume</h3>
+    <p class="text-muted">Are you sure you wish to remove <em id="deleteModalTitle"></em> from the catalog? This cannot be undone.</p>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeDeleteModal()">Cancel</button>
+      <button class="btn-confirm" onclick="confirmDelete()">Remove</button>
+    </div>
+  </div>
+</div>
+
+<!-- Warning Book -->
+<div class="overlay" id="warningModal">
+  <div class="modal-box">
+    <h3 style="color:#8b3a1c">⚠️ Cannot Delete Book</h3>
+    <p class="text-muted mt-2"><em id="warningModalTitle"></em> cannot be deleted because it is currently borrowed. Please wait for it to be returned first.</p>
+    <div class="modal-actions">
+      <button class="btn-confirm" onclick="closeWarningModal()">OK, Got it!</button>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Book -->
+<div class="overlay" id="editBookModal">
+  <div class="modal-box">
+    <h3>Edit Book</h3>
+    <div class="mb-3"><label class="form-label-upper d-block mb-1">Title</label><input type="text" id="edit-title" class="form-control"></div>
+    <div class="mb-3"><label class="form-label-upper d-block mb-1">Author</label><input type="text" id="edit-author" class="form-control"></div>
+    <div class="mb-3"><label class="form-label-upper d-block mb-1">ISBN</label><input type="text" id="edit-isbn" class="form-control"></div>
+    <div class="mb-3">
+      <label class="form-label-upper d-block mb-1">Category</label>
+      <select id="edit-genre" class="form-select">
+        <option>Fiction</option><option>Non-Fiction</option><option>Science</option>
+        <option>History</option><option>Philosophy</option><option>Fantasy</option><option>Mystery</option>
+      </select>
+    </div>
+    <div class="mb-2"><label class="form-label-upper d-block mb-1">Year</label><input type="number" id="edit-year" class="form-control"></div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeEditModal()">Cancel</button>
+      <button class="btn-confirm" onclick="updateBook()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Delete Member -->
+<div class="overlay" id="deleteMemberModal">
+  <div class="modal-box">
+    <h3>Remove Member</h3>
+    <p class="text-muted">Are you sure you want to remove <em id="deleteMemberName"></em>? This cannot be undone.</p>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeDeleteMemberModal()">Cancel</button>
+      <button class="btn-confirm" style="background:#8b3a1c" onclick="confirmDeleteMember()">Remove</button>
+    </div>
+  </div>
+</div>
+
+<!-- Member Warning -->
+<div class="overlay" id="memberWarningModal">
+  <div class="modal-box">
+    <h3 style="color:#8b3a1c">⚠️ Cannot Remove Member</h3>
+    <p class="text-muted mt-2"><em id="memberWarningName"></em> cannot be removed because they currently have borrowed books. Please wait for all books to be returned first.</p>
+    <div class="modal-actions">
+      <button class="btn-confirm" style="background:#8b3a1c" onclick="closeMemberWarningModal()">OK, Got it!</button>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Member -->
+<div class="overlay" id="editMemberModal" style="z-index:9999">
+  <div class="modal-box" style="max-width:460px;padding:0;border-radius:12px;overflow:hidden">
+    <div style="background:var(--dark);padding:1.2rem 1.6rem;display:flex;align-items:center;gap:.6rem">
+      <span style="font-size:1.2rem">✏️</span>
+      <h3 style="font-family:'Playfair Display',serif;color:var(--gold);margin:0;font-size:1.15rem">Edit Member</h3>
+    </div>
+    <div class="p-4 d-flex flex-column gap-3">
+      <div><label class="form-label-upper d-block mb-1">Name</label><input type="text" id="edit-name" class="form-control"></div>
+      <div><label class="form-label-upper d-block mb-1">Email</label><input type="text" id="edit-email" class="form-control"></div>
+      <div><label class="form-label-upper d-block mb-1">Contact</label><input type="text" id="edit-contact" class="form-control"></div>
+    </div>
+    <div class="px-4 pb-4 d-flex justify-content-end gap-2" style="border-top:1px solid var(--border);padding-top:.9rem">
+      <button onclick="closeEditMemberModal()" style="background:transparent;color:var(--text);border:1.5px solid var(--border);padding:.45rem 1.1rem;border-radius:6px;font-weight:600;font-size:.85rem;cursor:pointer;font-family:inherit">Cancel</button>
+      <button onclick="updateMember()" style="background:var(--dark);color:var(--gold);border:1.5px solid var(--gold);padding:.45rem 1.2rem;border-radius:6px;font-weight:700;font-size:.85rem;cursor:pointer;font-family:inherit">💾 Save Changes</button>
+    </div>
+  </div>
+</div>
+
+<!-- Member Books Modal -->
+<div class="overlay" id="memberBooksModal">
+  <div class="modal-box" style="max-width:860px;width:96%;padding:0;border-radius:12px;overflow:hidden">
+    <div style="background:var(--dark);padding:1.4rem 1.8rem;display:flex;align-items:center;justify-content:space-between">
+      <div class="d-flex align-items-center gap-3">
+        <span style="font-size:1.5rem">📚</span>
+        <div>
+          <h3 style="font-family:'Playfair Display',serif;color:var(--gold);margin:0;font-size:1.25rem">Member Details</h3>
+          <p id="memberBooksName" style="color:rgba(255,255,255,0.55);font-size:.8rem;margin:0;font-style:italic"></p>
+        </div>
+      </div>
+      <div class="d-flex gap-2 align-items-center">
+        <span id="memberModalStatusBadge" class="status" style="font-size:.75rem;padding:.2rem .7rem"></span>
+        <button onclick="openEditMemberModal()" style="background:var(--gold);color:var(--dark);border:none;padding:.45rem 1rem;border-radius:6px;font-weight:700;font-size:.8rem;cursor:pointer;font-family:inherit;letter-spacing:.05em">&#9999;&#65039; Edit</button>
+      </div>
+    </div>
+    <div class="d-flex" style="border-bottom:2px solid var(--border)">
+      <button id="modalTab-borrowed" onclick="switchMemberModalTab('borrowed')" style="flex:1;padding:.7rem;border:none;background:var(--navy-mid);color:var(--champagne);font-family:'Crimson Pro',serif;font-size:.9rem;font-weight:700;cursor:pointer;letter-spacing:.04em">&#128218; Borrowed Books</button>
+      <button id="modalTab-fines" onclick="switchMemberModalTab('fines')" style="flex:1;padding:.7rem;border:none;background:#f5f0e8;color:var(--muted);font-family:'Crimson Pro',serif;font-size:.9rem;font-weight:700;cursor:pointer;letter-spacing:.04em">&#128176; Fines <span id="memberFinesBadge" style="display:none;background:#c0392b;color:#fff;border-radius:10px;padding:.05rem .4rem;font-size:.75rem;margin-left:.3rem">0</span></button>
+    </div>
+    <div id="memberModalPanel-borrowed" class="p-4">
+      <div class="table-responsive" style="border-radius:8px;overflow:hidden;border:1px solid var(--border)">
+        <table class="table table-hover align-middle mb-0">
+          <thead><tr>
+            <th style="width:120px">BookCopy_ID</th><th>Book_Title</th><th>Author_Name</th>
+            <th>Category_Name</th><th>Borrow_Date</th><th>Due_Date</th><th style="width:130px">Status</th>
+          </tr></thead>
+          <tbody id="memberBooksTable"></tbody>
+        </table>
+      </div>
+    </div>
+    <div id="memberModalPanel-fines" style="display:none" class="p-4">
+      <div class="table-responsive" style="border-radius:8px;overflow:hidden;border:1px solid var(--border)">
+        <table class="table table-hover align-middle mb-0">
+          <thead><tr>
+            <th>Fines_ID</th><th>Book_Title</th><th>Fine_Amount</th><th>Issued_Date</th><th>Paid_Date</th><th>Fine_Status_Name</th><th>Actions</th>
+          </tr></thead>
+          <tbody id="memberFinesTable"></tbody>
+        </table>
+      </div>
+    </div>
+    <div class="d-flex justify-content-between align-items-center px-4 py-3" style="border-top:1px solid var(--border)">
+      <button onclick="toggleMemberStatus()" id="memberStatusToggleBtn" style="background:var(--dark);color:var(--gold);border:1.5px solid var(--gold);padding:.45rem 1.2rem;border-radius:6px;font-weight:700;font-size:.85rem;cursor:pointer;font-family:inherit">&#9889; Change Status</button>
+      <button onclick="closeMemberBooksModal()" style="background:transparent;color:var(--text);border:1.5px solid var(--border);padding:.45rem 1.2rem;border-radius:6px;font-weight:600;font-size:.85rem;cursor:pointer;font-family:inherit">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- Perm Delete -->
+<div class="overlay" id="permDeleteModal">
+  <div class="modal-box">
+    <h3>Permanently Delete Record</h3>
+    <p class="text-muted">This will permanently remove transaction <em id="permDeleteTxId"></em>. This cannot be undone.</p>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closePermDeleteModal()">Cancel</button>
+      <button class="btn-confirm" style="background:#8b3a1c" onclick="confirmPermDelete()">Delete Permanently</button>
+    </div>
+  </div>
+</div>
+
+
+
+<!-- Fine Notification -->
+<div class="overlay" id="fineNotifModal">
+  <div class="modal-box">
+    <h3 id="fineNotifTitle" style="color:#c0392b">⚠️ Overdue Fine Issued</h3>
+    <p id="fineNotifMessage" class="text-muted mt-2"></p>
+    <p class="mt-3" style="font-size:.85rem;color:var(--muted);font-style:italic">The fine has been added to the Fines section. You can mark it as Paid or Waived there.</p>
+    <div class="modal-actions">
+      <button class="btn-confirm" style="background:#c0392b" onclick="closeFineNotifModal()">OK, Got it!</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+
+if (!localStorage.getItem('loggedIn')) {
+    window.location.href = "admin.html";
+}
+
+const API = 'http://localhost:3000/api';
+
+const COLORS = [
+  ['#2c4a2e','#d4a017'],['#8b3a1c','#f5edd8'],['#1a3a5c','#e8c87a'],
+  ['#4a2c5e','#d4a017'],['#1d3d2b','#c8e0c0'],['#5c3317','#f0d9a0'],
+  ['#2a4858','#88c0c8'],['#4a3520','#e8d5b0'],['#3b1f2b','#e8aac0']
+];
+const MEMBER_COLORS = ['#2c4a2e','#8b3a1c','#1a3a5c','#4a2c5e','#5c3317','#2a4858'];
+
+let books        = [];
+let members      = [];
+let borrowedList = [];
+let history      = [];
+let fines        = [];
+
+
+let pendingBorrowCopyId   = null;
+let pendingDeleteId       = null;
+let pendingPermDeleteId   = null;
+let pendingDeleteMemberId = null;
+let editBookId            = null;
+let currentMemberId       = null;
+let searchTimers = {};
+
+function debounceSearch(section) {
+  clearTimeout(searchTimers[section]);
+  searchTimers[section] = setTimeout(() => {
+    if (section === 'catalog') searchBooks();
+    if (section === 'members') searchMembers();
+    if (section === 'history') renderHistory();
+  }, 350);
+}
+
+async function searchBooks() {
+  const q = (document.getElementById('searchInput').value || '').trim();
+  try {
+    const url = q ? `${API}/books/search?q=${encodeURIComponent(q)}` : `${API}/books`;
+    const res  = await fetch(url);
+    const data = await res.json();
+    books = mapBooks(data);
+    mergeBorrowedStatus();
+    renderCatalog();
+    updateStats();
+  } catch(e) { console.error(e); }
+}
+
+async function searchMembers() {
+  const q = (document.getElementById('memberSearch').value || '').trim();
+  try {
+    const url = q ? `${API}/members/search?q=${encodeURIComponent(q)}` : `${API}/members`;
+    const res  = await fetch(url);
+    const data = await res.json();
+    members = mapMembers(data);
+    renderMembers();
+    updateStats();
+  } catch(e) { console.error(e); }
+}
+
+function mapBooks(data) {
+  return data.map((b, i) => ({
+    id        : b.Book_ID,
+    copyId    : b.BookCopy_ID,
+    title     : b.Book_Title,
+    author    : b.Author_Name,
+    isbn      : b.Isbn,
+    genre     : b.Category_Name,
+    year      : b.Publication_Year,
+    statusName: b.Book_Status_Name,
+    statusId  : b.Book_Status_ID,
+    borrowed  : b.Book_Status_ID === 2,
+    color     : i % COLORS.length
+  }));
+}
+
+function mapMembers(data) {
+  return data.map((m, i) => ({
+    id     : m.Member_ID,
+    name   : m.Member_Name,
+    email  : m.Email          || '',
+    contact: m.Contact_Number || '',
+    joined : m.Date_Joined ? m.Date_Joined.split('T')[0] : '',
+    status : m.Member_Status_Name,
+    color  : MEMBER_COLORS[i % MEMBER_COLORS.length]
+  }));
+}
+
+async function loadBooks() {
+  try {
+    const res = await fetch(`${API}/books`);
+    books = mapBooks(await res.json());
+    updateStats();
+  } catch(e) { console.error('loadBooks:', e); }
+}
+
+async function loadMembers() {
+  try {
+    const res = await fetch(`${API}/members`);
+    members = mapMembers(await res.json());
+    renderMembers();
+    updateStats();
+  } catch(e) { console.error('loadMembers:', e); }
+}
+
+async function loadTransactions() {
+  try {
+    const res  = await fetch(`${API}/transactions`);
+    const data = await res.json();
+    history = data.map(t => ({
+      id        : t.Transaction_ID,
+      bookId    : t.Book_ID,
+      copyId    : t.BookCopy_ID,
+      bookTitle : t.Title,
+      memberId  : t.Member_ID,
+      memberName: t.Name,
+      borrowDate: t.Borrow_Date  ? t.Borrow_Date.split('T')[0]  : '',
+      dueDate   : t.Due_Date     ? t.Due_Date.split('T')[0]     : '',
+      returnDate: t.Return_Date  ? t.Return_Date.split('T')[0]  : null,
+      status    : (t.Status || 'borrowed').toLowerCase(),
+      is_archived: false
+    }));
+    renderHistory();
+    updateStats();
+  } catch(e) { console.error('loadTransactions:', e); }
+}
+
+async function loadBorrowed() {
+  try {
+    const res = await fetch(`${API}/transactions/borrowed`);
+    borrowedList = await res.json();
+    mergeBorrowedStatus();
+    renderCatalog();
+    renderBorrowed();
+    updateStats();
+    await autoRestrictOverdueMembers();
+  } catch(e) { console.error('loadBorrowed:', e); }
+}
+
+async function autoRestrictOverdueMembers() {
+  const today = new Date().toISOString().split('T')[0];
+  const overdueIds = new Set(
+    borrowedList
+      .filter(t => t.Due_Date && t.Due_Date.split('T')[0] < today)
+      .map(t => t.Member_ID)
+  );
+  for (const m of members) {
+    if (overdueIds.has(m.id) && m.status === 'Active') {
+      try {
+        await fetch(`${API}/members/status`, {
+          method : 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body   : JSON.stringify({ Member_ID: m.id, Member_Status: 'Restricted' })
+        });
+      } catch(e) { console.error('auto-restrict:', e); }
+    }
+  }
+  if (overdueIds.size > 0) {
+    try {
+      const res = await fetch(`${API}/members`);
+      members = mapMembers(await res.json());
+      renderMembers();
+    } catch(e) { /* silent */ }
+  }
+}
+
+async function loadFines() {
+  try {
+    const res = await fetch(`${API}/fines`);
+    fines = await res.json();
+    renderFines();
+    updateStats();
+  } catch(e) { console.error('loadFines:', e); }
+}
+
+function mergeBorrowedStatus() {
+  books = books.map(b => {
+    const tx = borrowedList.find(t => t.BookCopy_ID === b.copyId);
+    return {
+      ...b,
+      borrowed    : !!tx,
+      borrowedBy  : tx ? tx.Member_ID   : null,
+      txId        : tx ? tx.Transaction_ID : null,
+      borrowDate  : tx ? (tx.Borrow_Date ? tx.Borrow_Date.split('T')[0] : null) : null,
+      dueDate     : tx ? (tx.Due_Date    ? tx.Due_Date.split('T')[0]    : null) : null,
+      borrowerName: tx ? tx.Name : null,
+      author      : b.author || (tx ? tx.Author : null)
+    };
+  });
+}
+
+async function init() {
+  await Promise.all([loadBooks(), loadMembers()]);
+  await loadBorrowed();
+  await loadTransactions();
+  await loadFines();
+}
+
+function updateStats() {
+  const today = new Date().toISOString().split('T')[0];
+  document.getElementById('statTotal').textContent   = books.length;
+  document.getElementById('statAvail').textContent   = books.filter(b => !b.borrowed).length;
+  document.getElementById('statBorr').textContent    = books.filter(b => b.borrowed).length;
+  document.getElementById('statMemb').textContent    = members.length;
+  document.getElementById('statTx').textContent      = history.length;
+  const overdueCount = borrowedList.filter(t => t.Due_Date && t.Due_Date.split('T')[0] < today).length;
+  document.getElementById('statOverdue').textContent = overdueCount;
+}
+
+function showSection(id, btn) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.btn-nav').forEach(b => b.classList.remove('active'));
+  document.getElementById('section-' + id).classList.add('active');
+  if (btn) btn.classList.add('active');
+  if (id === 'catalog')  { loadBooks().then(loadBorrowed); }
+  if (id === 'members')  { loadMembers().then(loadBorrowed); }
+  if (id === 'borrowed') { loadBorrowed(); }
+  if (id === 'history')  { loadTransactions(); }
+  if (id === 'fines')    { loadFines(); }
+}
+
+function renderCatalog() {
+  const avFilter = document.getElementById('availFilter').value;
+  let filtered = books.filter(b => {
+    if (!avFilter) return true;
+    if (avFilter === 'available') return !b.borrowed;
+    if (avFilter === 'borrowed')  return  b.borrowed;
+    return true;
+  });
+  const grid = document.getElementById('bookGrid');
+  if (!filtered.length) {
+    grid.innerHTML = `<div class="empty-state"><p>No books found.</p></div>`;
+    return;
+  }
+  grid.innerHTML = filtered.map(b => {
+    const [bg, fg] = COLORS[b.color];
+    const badge = b.borrowed
+      ? `<span class="borrowed-badge">Borrowed</span>`
+      : `<span class="available-badge">Available</span>`;
+    const actionBtn = b.borrowed
+      ? `<button class="btn btn-return btn-sm flex-fill" onclick="returnBook(${b.txId})">Return</button>`
+      : `<button class="btn btn-borrow btn-sm flex-fill" onclick="openBorrowModal(${b.copyId})">Borrow</button>`;
+    return `
+      <div class="book-card">
+        <div class="book-body">
+          <div class="book-cover" style="background:${bg};color:${fg}">${b.title}</div>
+          <div class="book-title">${b.title}</div>
+          <div class="book-author">${b.author}</div>
+          <span class="book-genre" style="background:${bg}22;color:${bg}">${b.genre || ''}</span>
+          <div class="mb-2">${badge}</div>
+          <div class="book-actions">
+            ${actionBtn}
+            <button class="btn btn-edit btn-sm" onclick="openEditModal(${b.id})">Edit</button>
+            <button class="btn btn-del btn-sm"  onclick="deleteBook(${b.id})">Del</button>
+          </div>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+async function addBook() {
+  const title  = document.getElementById('f-title').value.trim();
+  const author = document.getElementById('f-author').value.trim();
+  if (!title || !author) { openNotifModal('Missing Fields', 'Title and Author are required!', 'error'); return; }
+  try {
+    const res = await fetch(`${API}/books`, {
+      method : 'POST', headers: { 'Content-Type': 'application/json' },
+      body   : JSON.stringify({
+        Title    : title, Author: author,
+        Isbn     : document.getElementById('f-isbn').value.trim(),
+        Genre    : document.getElementById('f-genre').value,
+        Year     : document.getElementById('f-year').value || null,
+        CopyCount: parseInt(document.getElementById('f-copies').value) || 1
+      })
+    });
+    const result = await res.json();
+    openNotifModal(result.status === 'success' ? 'Book Added' : 'Error', result.message, result.status);
+    if (result.status === 'success') {
+      ['f-title','f-author','f-isbn','f-year'].forEach(id => document.getElementById(id).value = '');
+      document.getElementById('f-copies').value = 1;
+      await loadBooks(); await loadBorrowed();
+    }
+  } catch(e) { console.error(e); openNotifModal('Error', 'Something went wrong! Is the server running?', 'error'); }
+}
+
+function deleteBook(id) {
+  pendingDeleteId = id;
+  const b = books.find(x => x.id === id);
+  document.getElementById('deleteModalTitle').textContent = b ? `"${b.title}"` : 'this book';
+  document.getElementById('deleteModal').classList.add('open');
+}
+
+async function confirmDelete() {
+  closeDeleteModal();
+  try {
+    const res    = await fetch(`${API}/books/${pendingDeleteId}`, { method: 'DELETE' });
+    const result = await res.json();
+    if (!res.ok || result.message?.includes('Cannot')) {
+      const b = books.find(x => x.id === pendingDeleteId);
+      document.getElementById('warningModalTitle').textContent = b ? `"${b.title}"` : 'This book';
+      document.getElementById('warningModal').classList.add('open');
+      return;
+    }
+    openNotifModal('Removed', result.message || 'Book deleted!', 'success');
+    await loadBooks(); await loadBorrowed();
+  } catch(e) { console.error(e); }
+}
+
+function openEditModal(id) {
+  editBookId = id;
+  const b = books.find(x => x.id === id);
+  if (!b) return;
+  document.getElementById('edit-title').value  = b.title;
+  document.getElementById('edit-author').value = b.author;
+  document.getElementById('edit-isbn').value   = b.isbn   || '';
+  document.getElementById('edit-genre').value  = b.genre  || 'Fiction';
+  document.getElementById('edit-year').value   = b.year   || '';
+  document.getElementById('editBookModal').classList.add('open');
+}
+
+async function updateBook() {
+  try {
+    const res = await fetch(`${API}/books`, {
+      method : 'PUT', headers: { 'Content-Type': 'application/json' },
+      body   : JSON.stringify({
+        Book_ID: editBookId,
+        Title  : document.getElementById('edit-title').value.trim(),
+        Author : document.getElementById('edit-author').value.trim(),
+        Isbn   : document.getElementById('edit-isbn').value.trim(),
+        Genre  : document.getElementById('edit-genre').value,
+        Year   : document.getElementById('edit-year').value || null
+      })
+    });
+    const result = await res.json();
+    closeEditModal();
+    openNotifModal(result.status === 'success' ? 'Updated' : 'Error', result.message, result.status);
+    if (result.status === 'success') { await loadBooks(); await loadBorrowed(); }
+  } catch(e) { console.error(e); }
+}
+
+function closeDeleteModal()  { document.getElementById('deleteModal').classList.remove('open'); }
+function closeWarningModal() { document.getElementById('warningModal').classList.remove('open'); }
+function closeEditModal()    { document.getElementById('editBookModal').classList.remove('open'); }
+
+function openBorrowModal(copyId) {
+  pendingBorrowCopyId = copyId;
+  const b = books.find(x => x.copyId === copyId);
+  document.getElementById('borrowModalTitle').textContent = b ? `"${b.title}"` : '';
+  const select = document.getElementById('borrowMemberSelect');
+  const active = members.filter(m => m.status === 'Active');
+  select.innerHTML = active.length
+    ? active.map(m => `<option value="${m.id}">${m.name}</option>`).join('')
+    : '<option value="">No active members available</option>';
+  document.getElementById('borrowModal').classList.add('open');
+}
+
+function closeBorrowModal() { document.getElementById('borrowModal').classList.remove('open'); }
+
+async function confirmBorrow() {
+  const memberId = parseInt(document.getElementById('borrowMemberSelect').value);
+  const duration = parseInt(document.getElementById('borrowDuration').value);
+  if (!memberId) { openNotifModal('Error', 'Please select a member!', 'error'); return; }
+  const today = new Date(); const due = new Date(today);
+  due.setDate(due.getDate() + duration);
+  const fmt = d => d.toISOString().split('T')[0];
+  closeBorrowModal();
+  try {
+    const res = await fetch(`${API}/transactions/borrow`, {
+      method : 'POST', headers: { 'Content-Type': 'application/json' },
+      body   : JSON.stringify({ BookCopy_ID: pendingBorrowCopyId, Member_ID: memberId, Borrow_Date: fmt(today), Due_Date: fmt(due) })
+    });
+    const result = await res.json();
+    openNotifModal(result.status === 'success' ? 'Book Borrowed' : 'Cannot Borrow', result.message, result.status);
+    if (result.status === 'success') { await loadBooks(); await loadBorrowed(); await loadTransactions(); }
+  } catch(e) { console.error(e); openNotifModal('Error', 'Something went wrong! Is the server running?', 'error'); }
+}
+
+async function returnBook(txId) {
+  try {
+    const res    = await fetch(`${API}/transactions/return/${txId}`, { method: 'POST' });
+    const result = await res.json();
+    if (result.status === 'success') {
+      if (result.fine_amount && parseFloat(result.fine_amount) > 0) {
+        document.getElementById('fineNotifTitle').textContent   = '⚠️ Overdue Fine Issued';
+        document.getElementById('fineNotifMessage').textContent = result.message;
+        document.getElementById('fineNotifModal').classList.add('open');
+      } else { openNotifModal('Returned', result.message, 'success'); }
+    } else { openNotifModal('Error', result.message, 'error'); }
+    await loadBooks(); await loadBorrowed(); await loadTransactions(); await loadFines();
+  } catch(e) { console.error(e); }
+}
+
+function closeFineNotifModal() { document.getElementById('fineNotifModal').classList.remove('open'); }
+
+function renderBorrowed() {
+  const q      = (document.getElementById('borrowedSearch').value || '').toLowerCase();
+  const filter = document.getElementById('borrowedStatusFilter').value;
+  const today  = new Date().toISOString().split('T')[0];
+  let filtered = borrowedList.filter(t => {
+    const dueStr  = t.Due_Date ? t.Due_Date.split('T')[0] : '';
+    const overdue = dueStr && dueStr < today;
+    const matchQ  = !q || (t.Title && t.Title.toLowerCase().includes(q)) || (t.Author && t.Author.toLowerCase().includes(q)) || (t.Name && t.Name.toLowerCase().includes(q));
+    const matchF  = !filter || (filter === 'overdue' && overdue) || (filter === 'current' && !overdue);
+    return matchQ && matchF;
+  });
+  document.getElementById('borrowedResultCount').textContent =
+    filtered.length !== borrowedList.length ? `Showing ${filtered.length} of ${borrowedList.length} records` : '';
+  const tbody = document.getElementById('borrowTable');
+  if (!filtered.length) {
+    tbody.innerHTML = `<tr><td colspan="9" class="text-center py-4 text-muted fst-italic">${borrowedList.length ? 'No records match your search.' : 'All books are currently available.'}</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = filtered.map(t => {
+    const due    = t.Due_Date    ? t.Due_Date.split('T')[0]    : '—';
+    const borrow = t.Borrow_Date ? t.Borrow_Date.split('T')[0] : '—';
+    const overdue = due !== '—' && due < today;
+    const returnId = t.BorrowDetails_ID || t.Transaction_ID;
+    return `<tr>
+      <td><span class="id-chip">TX-${String(t.Transaction_ID).padStart(6,'0')}</span></td>
+      <td><span class="id-chip">CPY-${String(t.BookCopy_ID).padStart(4,'0')}</span></td>
+      <td class="fw-semibold">${t.Title || '—'}</td>
+      <td class="fst-italic text-muted">${t.Author || '—'}</td>
+      <td><span class="id-chip">MBR-${String(t.Member_ID).padStart(4,'0')}</span></td>
+      <td>${t.Name || '—'}</td>
+      <td>${borrow}</td>
+      <td style="color:${overdue?'#c0392b':'inherit'};font-weight:${overdue?'600':'400'}">${due}${overdue?' &#9888;':''}</td>
+      <td><button class="btn-action btn-return" onclick="returnBook(${returnId})">Return</button></td>
+    </tr>`;
+  }).join('');
+}
+
+function renderMembers() {
+  const booksFilter = document.getElementById('memberBooksFilter').value;
+  let filtered = members.filter(m => {
+    const booksOut = borrowedList.filter(t => t.Member_ID === m.id).length;
+    if (!booksFilter) return true;
+    if (booksFilter === 'active') return booksOut > 0;
+    if (booksFilter === 'clear')  return booksOut === 0;
+    return true;
+  });
+  const tbody = document.getElementById('memberTable');
+  if (!filtered.length) {
+    tbody.innerHTML = `<tr><td colspan="8" class="text-center py-4 text-muted fst-italic">No members found.</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = filtered.map(m => {
+    const booksOut = borrowedList.filter(t => t.Member_ID === m.id).length;
+    const statusCls = m.status.toLowerCase();
+    return `<tr>
+      <td><span class="id-chip">MBR-${String(m.id).padStart(4,'0')}</span></td>
+      <td class="fw-semibold">${m.name}</td>
+      <td class="text-muted fst-italic">${m.email || '—'}</td>
+      <td>${m.contact || '—'}</td>
+      <td>${m.joined}</td>
+      <td class="text-center"><span style="font-weight:600;color:${booksOut>0?'var(--rust)':'var(--forest)'}">${booksOut}</span></td>
+      <td class="text-center"><span class="status ${statusCls}">${m.status}</span></td>
+      <td>
+        <div class="d-flex gap-2">
+          <button class="btn-action btn-edit" onclick="openMemberBooksModal(${m.id})">View</button>
+          <button class="btn-action btn-del"  onclick="removeMember(${m.id})">Remove</button>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+async function addMember() {
+  const name    = document.getElementById('m-name').value.trim();
+  const email   = document.getElementById('m-email').value.trim();
+  const contact = document.getElementById('m-contact').value.trim();
+  if (!name) { openNotifModal('Error', 'Name is required!', 'error'); return; }
+  try {
+    const res = await fetch(`${API}/members`, {
+      method : 'POST', headers: { 'Content-Type': 'application/json' },
+      body   : JSON.stringify({ Name: name, Email: email, Contact_Number: contact })
+    });
+    const result = await res.json();
+    openNotifModal(result.status === 'success' ? 'Member Added' : 'Error', result.message, result.status);
+    if (result.status === 'success') {
+      ['m-name','m-email','m-contact'].forEach(id => document.getElementById(id).value = '');
+      await loadMembers();
+    }
+  } catch(e) { console.error(e); openNotifModal('Error', 'Something went wrong!', 'error'); }
+}
+
+function removeMember(id) {
+  pendingDeleteMemberId = id;
+  const m = members.find(x => x.id === id);
+  document.getElementById('deleteMemberName').textContent = m ? `"${m.name}"` : 'this member';
+  document.getElementById('deleteMemberModal').classList.add('open');
+}
+
+async function confirmDeleteMember() {
+  try {
+    const res = await fetch(`${API}/members/${pendingDeleteMemberId}`, { method: 'DELETE' });
+    let result;
+    try { result = await res.json(); } catch { throw new Error("Invalid JSON response"); }
+    if (!res.ok || result.status === 'error') {
+      openNotifModal('Cannot Remove', result.message || 'Member cannot be deleted.', 'error');
+      closeDeleteMemberModal(); return;
+    }
+    openNotifModal('Removed', result.message || 'Member removed!', 'success');
+    await loadMembers(); await loadBorrowed();
+    closeDeleteMemberModal();
+  } catch(e) { console.error(e); openNotifModal('Error', 'Something went wrong!', 'error'); closeDeleteMemberModal(); }
+}
+
+async function checkIfHasborrowed(id) {
+  const res = await fetch(`${API}/members/checkBorrowed/${id}`);
+  const data = await res.json();
+  return data.allReturned;
+}
+
+function closeDeleteMemberModal()  { document.getElementById('deleteMemberModal').classList.remove('open'); pendingDeleteMemberId = null; }
+function openMemberWarningModal(n) { document.getElementById('memberWarningName').textContent = `"${n}"`; document.getElementById('memberWarningModal').classList.add('open'); }
+function closeMemberWarningModal() { document.getElementById('memberWarningModal').classList.remove('open'); }
+
+function switchMemberModalTab(tab) {
+  const isBorrowed = tab === 'borrowed';
+  document.getElementById('memberModalPanel-borrowed').style.display = isBorrowed ? 'block' : 'none';
+  document.getElementById('memberModalPanel-fines').style.display    = isBorrowed ? 'none' : 'block';
+  document.getElementById('modalTab-borrowed').style.background = isBorrowed ? 'var(--navy-mid)' : '#f5f0e8';
+  document.getElementById('modalTab-borrowed').style.color      = isBorrowed ? 'var(--champagne)' : 'var(--muted)';
+  document.getElementById('modalTab-fines').style.background    = isBorrowed ? '#f5f0e8' : 'var(--navy-mid)';
+  document.getElementById('modalTab-fines').style.color         = isBorrowed ? 'var(--muted)' : 'var(--champagne)';
+}
+
+async function openMemberBooksModal(id) {
+  currentMemberId = id;
+  const m = members.find(x => x.id === id);
+  document.getElementById('memberBooksName').textContent = m ? `Viewing: ${m.name}` : '';
+  const badge = document.getElementById('memberModalStatusBadge');
+  if (m) { badge.textContent = m.status; badge.className = `status ${m.status.toLowerCase()}`; badge.style.display = 'inline-block'; }
+  switchMemberModalTab('borrowed');
+  document.getElementById('memberBooksModal').classList.add('open');
+  const tbody = document.getElementById('memberBooksTable');
+  tbody.innerHTML = `<tr><td colspan="7" class="text-center py-4 text-muted fst-italic">⏳ Loading...</td></tr>`;
+  const today = new Date().toISOString().split('T')[0];
+  let hasOverdue = false;
+  try {
+    const res  = await fetch(`${API}/members/${id}/borrowed`);
+    const data = await res.json();
+    if (!Array.isArray(data) || !data.length) {
+      tbody.innerHTML = `<tr><td colspan="7" class="text-center py-4 text-muted fst-italic">📭 No currently borrowed books.</td></tr>`;
+    } else {
+      tbody.innerHTML = data.map(b => {
+        const due    = b.Due_Date    ? b.Due_Date.split('T')[0]    : '—';
+        const borrow = b.Borrow_Date ? b.Borrow_Date.split('T')[0] : '—';
+        const overdue = b.Status === 'Overdue' || (due !== '—' && due < today && !b.Return_Date);
+        if (overdue) hasOverdue = true;
+        return `<tr>
+          <td><span class="id-chip">CPY-${String(b.BookCopy_ID).padStart(4,'0')}</span></td>
+          <td class="fw-semibold">${b.Book_Title  || '—'}</td>
+          <td class="text-muted fst-italic">${b.Book_Author || '—'}</td>
+          <td>${b.Book_Genre || '—'}</td>
+          <td>${borrow}</td>
+          <td style="color:${overdue?'#c0392b':'inherit'};font-weight:${overdue?'600':'400'}">${due}${overdue?' &#9888;&#65039;':''}</td>
+          <td><span class="status-badge ${overdue?'status-overdue':'status-borrowed'}">${overdue?'Overdue':b.Status}</span></td>
+        </tr>`;
+      }).join('');
+    }
+    if (hasOverdue && m && m.status === 'Active') {
+      await fetch(`${API}/members/status`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ Member_ID: id, Member_Status: 'Restricted' }) });
+      await loadMembers();
+      const updated = members.find(x => x.id === id);
+      if (updated) { badge.textContent = updated.status; badge.className = `status ${updated.status.toLowerCase()}`; }
+    }
+  } catch(e) {
+    tbody.innerHTML = `<tr><td colspan="7" class="text-center py-3 text-danger fw-semibold">⚠️ Could not load data. Is the server running?</td></tr>`;
+  }
+  const finesTbody = document.getElementById('memberFinesTable');
+  finesTbody.innerHTML = `<tr><td colspan="7" class="text-center py-4 text-muted fst-italic">⏳ Loading...</td></tr>`;
+  try {
+    const memberFines = fines.filter(f => f.Member_ID === id || f.Member_Name === (m ? m.name : ''));
+    const badgeEl = document.getElementById('memberFinesBadge');
+    const unpaid  = memberFines.filter(f => f.Fine_Status === 'Unpaid').length;
+    if (unpaid > 0) { badgeEl.textContent = unpaid; badgeEl.style.display = 'inline-block'; } else { badgeEl.style.display = 'none'; }
+    if (!memberFines.length) {
+      finesTbody.innerHTML = `<tr><td colspan="7" class="text-center py-4 text-muted fst-italic">🎉 No fines recorded for this member.</td></tr>`;
+    } else {
+      finesTbody.innerHTML = memberFines.map(f => {
+        const issued = f.Issued_Date ? f.Issued_Date.split('T')[0] : '—';
+        const paid   = f.Paid_Date   ? f.Paid_Date.split('T')[0]   : '—';
+        const statusLower = (f.Fine_Status || '').toLowerCase();
+        let actions = f.Fine_Status === 'Unpaid'
+          ? `<button class="btn-action btn-pay" onclick="payFineFromModal(${f.Fines_ID})">Mark Paid</button>
+             <button class="btn-action btn-waive" onclick="waiveFineFromModal(${f.Fines_ID})">Waive</button>`
+          : `<span class="text-muted fst-italic" style="font-size:.8rem">${f.Fine_Status}</span>`;
+        return `<tr>
+          <td class="id-chip">FINE-${String(f.Fines_ID).padStart(4,'0')}</td>
+          <td class="fst-italic">${f.Book_Title || '—'}</td>
+          <td class="fine-amount">&#8369;${parseFloat(f.Fine_Amount).toFixed(2)}</td>
+          <td>${issued}</td>
+          <td style="color:${f.Paid_Date?'#2c6e49':'var(--muted)'}">${paid}</td>
+          <td><span class="status-badge status-${statusLower}">${f.Fine_Status}</span></td>
+          <td><div class="d-flex gap-2">${actions}</div></td>
+        </tr>`;
+      }).join('');
+    }
+  } catch(e) {
+    finesTbody.innerHTML = `<tr><td colspan="7" class="text-center py-3 text-danger">⚠️ Could not load fines.</td></tr>`;
+  }
+}
+
+async function payFineFromModal(fineId) {
+  try {
+    const res = await fetch(`${API}/fines/pay/${fineId}`, { method: 'PUT' });
+    const result = await res.json();
+    if (result.status === 'success') { await loadFines(); await checkAndRestoreMemberStatus(currentMemberId); await openMemberBooksModal(currentMemberId); }
+    else { openNotifModal('Error', result.message, 'error'); }
+  } catch(e) { console.error(e); }
+}
+
+async function waiveFineFromModal(fineId) {
+  try {
+    const res = await fetch(`${API}/fines/waive/${fineId}`, { method: 'PUT' });
+    const result = await res.json();
+    if (result.status === 'success') { await loadFines(); await checkAndRestoreMemberStatus(currentMemberId); await openMemberBooksModal(currentMemberId); }
+    else { openNotifModal('Error', result.message, 'error'); }
+  } catch(e) { console.error(e); }
+}
+
+async function checkAndRestoreMemberStatus(memberId) {
+  const m = members.find(x => x.id === memberId);
+  if (!m || m.status !== 'Restricted') return;
+  const today = new Date().toISOString().split('T')[0];
+  const memberFines   = fines.filter(f => (f.Member_ID === memberId || f.Member_Name === m.name) && f.Fine_Status === 'Unpaid');
+  const memberOverdue = borrowedList.filter(t => t.Member_ID === memberId && t.Due_Date && t.Due_Date.split('T')[0] < today);
+  if (memberFines.length === 0 && memberOverdue.length === 0) {
+    await fetch(`${API}/members/status`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ Member_ID: memberId, Member_Status: 'Active' }) });
+    await loadMembers();
+  }
+}
+
+function closeMemberBooksModal()  { document.getElementById('memberBooksModal').classList.remove('open'); }
+
+function openEditMemberModal() {
+  const m = members.find(x => x.id === currentMemberId);
+  if (!m) return;
+  document.getElementById('edit-name').value    = m.name;
+  document.getElementById('edit-email').value   = m.email;
+  document.getElementById('edit-contact').value = m.contact;
+  document.getElementById('editMemberModal').classList.add('open');
+}
+
+function closeEditMemberModal() { document.getElementById('editMemberModal').classList.remove('open'); }
+
+async function updateMember() {
+  const name    = document.getElementById('edit-name').value.trim();
+  const email   = document.getElementById('edit-email').value.trim();
+  const contact = document.getElementById('edit-contact').value.trim();
+  if (!name) { openNotifModal('Error', 'Name is required!', 'error'); return; }
+  try {
+    const res = await fetch(`${API}/members`, {
+      method : 'PUT', headers: { 'Content-Type': 'application/json' },
+      body   : JSON.stringify({ Member_ID: currentMemberId, Name: name, Email: email, Contact_Number: contact })
+    });
+    const result = await res.json();
+    if (result.status === 'success') {
+      openNotifModal('Updated', 'Member info updated successfully!', 'success');
+      closeEditMemberModal(); await loadMembers(); await loadTransactions();
+    } else { openNotifModal('Error', result.message || 'Update failed!', 'error'); }
+  } catch(e) { console.error(e); openNotifModal('Error', 'Update failed!', 'error'); }
+}
+
+async function toggleMemberStatus() {
+  const m = members.find(x => x.id === currentMemberId);
+  if (!m) return;
+  const newStatus = m.status === 'Active' ? 'Restricted' : 'Active';
+  try {
+    const res = await fetch(`${API}/members/status`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ Member_ID: currentMemberId, Member_Status: newStatus }) });
+    const result = await res.json();
+    openNotifModal(result.status === 'success' ? 'Status Updated' : 'Error', result.message, result.status);
+    closeMemberBooksModal(); await loadMembers();
+  } catch(e) { console.error(e); }
+}
+
+function renderHistory() {
+  const q      = (document.getElementById('historySearch').value || '').toLowerCase();
+  const filter = document.getElementById('historyTypeFilter').value;
+  let filtered = history.filter(h => {
+    const txId = 'TX-' + String(h.id).padStart(6,'0');
+    const matchQ = !q || h.bookTitle.toLowerCase().includes(q) || h.memberName.toLowerCase().includes(q) || h.borrowDate.includes(q) || (h.returnDate && h.returnDate.includes(q)) || txId.toLowerCase().includes(q);
+    const matchF = !filter || h.status === filter;
+    return matchQ && matchF;
+  });
+  document.getElementById('historyResultCount').textContent =
+    filtered.length !== history.length ? `Showing ${filtered.length} of ${history.length} records` : '';
+  const today = new Date().toISOString().split('T')[0];
+  const tbody = document.getElementById('historyTable');
+  if (!filtered.length) {
+    tbody.innerHTML = `<tr><td colspan="10" class="text-center py-4 text-muted fst-italic">${history.length ? 'No records match your search.' : 'No transactions recorded yet.'}</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = filtered.map(h => {
+    const isBorrow  = !h.returnDate;
+    const overdue   = isBorrow && h.dueDate && h.dueDate < today;
+    const statusLabel = overdue ? 'Overdue' : (isBorrow ? 'Borrowed' : 'Returned');
+    const statusClass = overdue ? 'status-overdue' : (isBorrow ? 'status-borrowed' : 'status-returned');
+    return `<tr>
+      <td class="id-chip">TX-${String(h.id).padStart(6,'0')}</td>
+      <td class="id-chip">BOOK-${String(h.bookId).padStart(4,'0')}</td>
+      <td class="id-chip">CPY-${String(h.copyId).padStart(4,'0')}</td>
+      <td class="fw-semibold">${h.bookTitle}</td>
+      <td class="id-chip">MBR-${String(h.memberId).padStart(4,'0')}</td>
+      <td>${h.memberName}</td>
+      <td>${h.borrowDate}</td>
+      <td style="color:${h.returnDate?'var(--forest)':'var(--muted)'};font-style:${h.returnDate?'normal':'italic'}">
+        ${h.returnDate || (isBorrow ? 'Not returned yet' : '—')}
+      </td>
+      <td><span class="status-badge ${statusClass}">${statusLabel}</span></td>
+      <td><button class="btn-action btn-perm-del" onclick="openPermDeleteModal(${h.id})">Delete</button></td>
+    </tr>`;
+  }).join('');
+}
+
+
+
+async function confirmPermDelete() {
+  closePermDeleteModal();
+  try { await fetch(`${API}/transactions/${pendingPermDeleteId}`, { method: 'DELETE' }); } catch(e) { console.error(e); }
+  await loadTransactions();
+}
+
+function renderFines() {
+  const q      = (document.getElementById('finesSearch').value || '').toLowerCase();
+  const filter = document.getElementById('finesStatusFilter').value;
+  let filtered = fines.filter(f => {
+    const matchQ = !q || (f.Member_Name && f.Member_Name.toLowerCase().includes(q)) || (f.Book_Title && f.Book_Title.toLowerCase().includes(q));
+    const matchF = !filter || f.Fine_Status === filter;
+    return matchQ && matchF;
+  });
+  document.getElementById('finesResultCount').textContent =
+    filtered.length !== fines.length ? `Showing ${filtered.length} of ${fines.length} fines` : '';
+  const tbody = document.getElementById('finesTable');
+  if (!filtered.length) {
+    const msg = fines.length ? 'No fines match your search.' : 'No fines recorded yet. 🎉';
+    tbody.innerHTML = `<tr><td colspan="9" class="text-center py-4 text-muted fst-italic">${msg}</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = filtered.map(f => {
+    const issued = f.Issued_Date ? f.Issued_Date.split('T')[0] : '—';
+    const paid   = f.Paid_Date   ? f.Paid_Date.split('T')[0]   : '—';
+    const statusLower = (f.Fine_Status || '').toLowerCase();
+    let actions = f.Fine_Status === 'Unpaid'
+      ? `<button class="btn-action btn-pay" onclick="payFine(${f.Fines_ID})">Mark Paid</button>
+         <button class="btn-action btn-waive" onclick="waiveFine(${f.Fines_ID})">Waive</button>`
+      : `<span class="text-muted fst-italic" style="font-size:.8rem">${f.Fine_Status}</span>`;
+    return `<tr>
+      <td class="id-chip">FINE-${String(f.Fines_ID).padStart(4,'0')}</td>
+      <td class="id-chip">TX-${String(f.Transaction_ID).padStart(6,'0')}</td>
+      <td class="fw-semibold">${f.Member_Name || '—'}</td>
+      <td class="fst-italic">${f.Book_Title || '—'}</td>
+      <td class="fine-amount">₱${parseFloat(f.Fine_Amount).toFixed(2)}</td>
+      <td>${issued}</td>
+      <td style="color:${f.Paid_Date?'#2c6e49':'var(--muted)'}">${paid}</td>
+      <td><span class="status-badge status-${statusLower}">${f.Fine_Status}</span></td>
+      <td><div class="d-flex gap-2">${actions}</div></td>
+    </tr>`;
+  }).join('');
+}
+
+async function payFine(fineId) {
+  try {
+    const res    = await fetch(`${API}/fines/pay/${fineId}`, { method: 'PUT' });
+    const result = await res.json();
+    openNotifModal(result.status === 'success' ? 'Fine Paid' : 'Error', result.message, result.status);
+    if (result.status === 'success') {
+      await loadFines();
+      const f = fines.find(x => x.Fines_ID === fineId);
+      if (f) { const mem = members.find(m => m.name === f.Member_Name); if (mem) await checkAndRestoreMemberStatus(mem.id); }
+    }
+  } catch(e) { console.error(e); }
+}
+
+async function waiveFine(fineId) {
+  try {
+    const res    = await fetch(`${API}/fines/waive/${fineId}`, { method: 'PUT' });
+    const result = await res.json();
+    openNotifModal(result.status === 'success' ? 'Fine Waived' : 'Error', result.message, result.status);
+    if (result.status === 'success') {
+      await loadFines();
+      const f = fines.find(x => x.Fines_ID === fineId);
+      if (f) { const mem = members.find(m => m.name === f.Member_Name); if (mem) await checkAndRestoreMemberStatus(mem.id); }
+    }
+  } catch(e) { console.error(e); }
+}
+
+function openNotifModal(title, message, type) {
+  const icon = type === 'success' ? '✅ ' : '⚠️ ';
+  document.getElementById('notifTitle').textContent = icon + title;
+  document.getElementById('notifTitle').style.color = type === 'success' ? '#2c6e49' : '#8b3a1c';
+  document.getElementById('notifMessage').textContent = message;
+  document.getElementById('notifBtn').style.background = type === 'success' ? 'var(--navy-mid)' : '#8b3a1c';
+  document.getElementById('notifModal').classList.add('open');
+}
+function closeNotifModal() { document.getElementById('notifModal').classList.remove('open'); }
+
+function logout() { localStorage.removeItem('loggedIn'); window.location.href = "admin.html"; }
+
+init();
+</script>
+</body>
+</html>
